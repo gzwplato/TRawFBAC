@@ -36,6 +36,7 @@ implementation
 procedure TfrmGenerators.btnGuardarClick(Sender: TObject);
 var I: Integer;
 begin
+  fTable.ShowDeleted:= True;
   for I:= 0 to GridGenerators.RowCount - 1 do begin
     if GridGenerators.Cell[ 3, I ].AsString = '1' then begin
       fTable.SQL.Text:= 'SET GENERATOR ' + GridGenerators.Cell[ 1, I ].AsString + ' TO ' + GridGenerators.Cell[ 2, I ].AsString + ';';

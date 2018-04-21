@@ -11,8 +11,10 @@ object frmRawFBACBrowser: TfrmRawFBACBrowser
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   Position = poScreenCenter
+  OnKeyDown = FormKeyDown
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -118,11 +120,21 @@ object frmRawFBACBrowser: TfrmRawFBACBrowser
     Caption = '&Nuevo'
     TabOrder = 5
   end
+  object btnImportar: TButton
+    Left = 354
+    Top = 490
+    Width = 75
+    Height = 25
+    Caption = 'Importar'
+    TabOrder = 8
+    Visible = False
+    OnClick = btnImportarClick
+  end
   object ImageList1: TImageList
     Left = 288
     Top = 216
     Bitmap = {
-      494C010104008400A40010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010400C000D00010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

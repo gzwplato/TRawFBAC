@@ -52,9 +52,9 @@ const
     10000000,1000000,100000,10000,1000,100,10);
 
   ScaleFormat: array[-15..-1] of string = (
-    '0.0##############', '0.0#############', '0.0############', '0.0###########',
-    '0.0##########', '0.0#########', '0.0########', '0.0#######', '0.0######',
-    '0.0#####', '0.0####', '0.0###', '0.0##', '0.0#', '0.0');
+    '0.00#############', '0.00############', '0.00###########', '0.00##########',
+    '0.00#########', '0.00########', '0.00#######', '0.00######', '0.00#####',
+    '0.00####', '0.00###', '0.00##', '0.00#', '0.00', '0.0');
 
   CurrencyDivisor: array[-15..-1] of int64 = (100000000000,10000000000,
     1000000000,100000000,10000000,1000000,100000,10000,1000,100,10,1,10,100,
@@ -64,6 +64,28 @@ const
   isc_dpb_user_name = 28;
   isc_dpb_password = 29;
   isc_info_sql_stmt_type = 21;
+  isc_info_sql_get_plan = 22;
+  isc_info_sql_records = 23;
+
+  isc_info_sql_stmt_select = 1;
+  isc_info_sql_stmt_insert = 2;
+  isc_info_sql_stmt_update = 3;
+  isc_info_sql_stmt_delete = 4;
+  isc_info_sql_stmt_ddl = 5;
+  isc_info_sql_stmt_get_segment = 6;
+  isc_info_sql_stmt_put_segment = 7;
+  isc_info_sql_stmt_exec_procedure = 8;
+  isc_info_sql_stmt_start_trans = 9;
+  isc_info_sql_stmt_commit = 10;
+  isc_info_sql_stmt_rollback = 11;
+  isc_info_sql_stmt_select_for_upd = 12;
+  isc_info_sql_stmt_set_generator = 13;
+  isc_info_sql_stmt_savepoint = 14;
+
+  isc_info_req_select_count = 13;
+  isc_info_req_insert_count = 14;
+  isc_info_req_update_count = 15;
+  isc_info_req_delete_count = 16;
 
   MaxParamLength = 125;
 
@@ -100,7 +122,7 @@ const
 
   isc_spb_version1                                = 1;
   isc_spb_current_version                         = 2;
-  isc_spb_version		                              = isc_spb_current_version;
+  isc_spb_version		                  = isc_spb_current_version;
   isc_spb_user_name_mapped_to_server              = isc_dpb_user_name;
   isc_spb_password_mapped_to_server               = isc_dpb_password;
   isc_spb_command_line_mapped_to_server           = 105;
@@ -671,7 +693,7 @@ begin
       Vector[ i ]:= QuotedStr( Vector[ i ] );
     Result:= Result + Vector[ i ] + Sep;
   end;
-  Result:= Copy( Result, 1, Length( Result ) - 1 );
+  Result:= Copy( Result, 1, Length( Result ) - Length(Sep) );
 end;
 
 function FileAppend(FileName: String; ToWrite: String): Boolean;

@@ -8,7 +8,7 @@ interface
 
 uses ClipBrd,
      Lucho, RawFBAC, CryptHexa,
-     MD5, ULogIn, IdCoder, IdCoder3to4, IdCoderMIME, IdBaseComponent,
+     MD5, {ULogIn, }IdCoder, IdCoder3to4, IdCoderMIME, IdBaseComponent,
      Winapi.Windows, System.SysUtils, Vcl.Controls, Vcl.Forms, System.Classes;
 
 type TINIInFDB = class(TObject)
@@ -160,7 +160,7 @@ end;
 
 procedure TINIInFDB.SetString(AFile, ASection, AIdent, AValue: String);
 begin
-  SetString( GetComputerNameStr, AFile, ASection, AIdent, AValue );
+  SetString(GetComputerNameStr, AFile, ASection, AIdent, AValue);
 end;
 
 procedure TINIInFDB.SetStringCrypt(APC, AFile, ASection, AIdent, AValue: String);

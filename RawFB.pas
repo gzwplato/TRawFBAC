@@ -92,6 +92,10 @@ type
     // Log
     fLogStatementsStartsWith: String;
     fLogStatements2File: String;
+    fPlan: String;
+    fInsertsAffected: Integer;
+    fUpdatesAffected: Integer;
+    fDeletesAffected: Integer;
 
     Out_DA: PXSQLDA;
     fDataBuffer: Pointer;
@@ -177,6 +181,10 @@ type
     procedure LoadFunctions;
     property LogStatementsStartsWith: String read fLogStatementsStartsWith write fLogStatementsStartsWith;
     property LogStatements2File: String read fLogStatements2File write fLogStatements2File;
+    property Plan: String read fPlan;
+    property InsertsAffected: Integer read fInsertsAffected;
+    property UpdatesAffected: Integer read fUpdatesAffected;
+    property DeletesAffected: Integer read fDeletesAffected;
   end;
 
 implementation
@@ -431,6 +439,7 @@ begin
     end;
 
     fDLLHandle := LoadLibraryEx(PChar(fFBLibrary), 0, 0);
+    //fDLLHandle := LoadLibrary(PChar(fFBLibrary));
     if fDLLHandle <> 0 then begin
       isc_interprete := GetProcAddress(fDLLHandle, 'isc_interprete');
       isc_attach_database := GetProcAddress(fDLLHandle, 'isc_attach_database');
@@ -1040,7 +1049,7 @@ end;
 procedure TRawFB.SetConnected(const Value: Boolean);
 var
   ParamsStr: AnsiString;
-  Params: array [0 .. 255] of AnsiChar;
+  Params: array [0..255] of AnsiChar;
   I: Integer;
   DBName: AnsiString;
 begin
@@ -1118,6 +1127,7 @@ procedure TRawFB.SQLExecute;
 var
   I: Integer;
   InternalSQL: AnsiString;
+  Buffer: array[0..16384] of Byte;
 
   STInfo: packed record
     InfoCode: Byte;
@@ -1125,6 +1135,18 @@ var
     InfoType: TGenericStatementType;
     Filler: Byte;
   end;
+
+  InfoData: packed record
+    InfoCode: byte;
+    InfoLen: Word;
+    Infos: packed array[0..3] of record
+      InfoCode: byte;
+      InfoLen: Word;
+      Rows: Cardinal;
+    end;
+    Filler: Word;
+  end;
+
   InfoIn: Byte;
   In_DA: PXSQLDA;
 begin
@@ -1171,6 +1193,14 @@ begin
       Out_DA) <> 0 then
       CheckAPICall(@fStatusVector);
 
+    // Plan
+    fPlan:= '';
+    InfoIn:= isc_info_sql_get_plan;
+    if isc_dsql_sql_info(@fStatusVector, @fStmtHandle, 1, @InfoIn, SizeOf(Buffer), @Buffer) <> 0 then
+      CheckAPICall(@fStatusVector);
+
+    fPlan:= Trim(String(PAnsiChar(@Buffer[3])));
+
     InfoIn := isc_info_sql_stmt_type;
 
     isc_dsql_sql_info(@fStatusVector, @fStmtHandle, 1, @InfoIn, SizeOf(STInfo), @STInfo);
@@ -1206,6 +1236,23 @@ begin
         CheckAPICall(@fStatusVector);
       end;
     end;
+
+    // Rows affected
+    fInsertsAffected:= 0;
+    fUpdatesAffected:= 0;
+    fDeletesAffected:= 0;
+
+    InfoIn:= isc_info_sql_records;
+    if isc_dsql_sql_info(@fStatusVector, @fStmtHandle, 1, @InfoIn, SizeOf(InfoData), @InfoData) <> 0 then
+      CheckAPICall(@fStatusVector);
+
+    for InfoIn := 0 to 3 do
+      with InfoData.Infos[InfoIn] do
+      case InfoCode of
+        isc_info_req_insert_count: fInsertsAffected:= Rows;
+        isc_info_req_update_count: fUpdatesAffected:= Rows;
+        isc_info_req_delete_count: fDeletesAffected:= Rows;
+      end;
 
     // Log
     Log( InternalSQL );
